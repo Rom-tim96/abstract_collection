@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 
-#include "include/platform.cpp"
+#include "termlib.h"
 
 class Position {
 
@@ -47,10 +47,6 @@ public:
 				std::cout << "No positions found" << std::endl;
 		} else
 			std::cout << "List is empty.";
-
-		std::cout << std::endl
-				  << "Press any key." << std::endl;
-		_getch();
 	}
 
 	static void print(std::vector<Position*> positions) {
@@ -110,6 +106,10 @@ int main() {
 			case 51: {//3
 				clrscr();
 				Position::displayByName(allPos);
+				
+				std::cout << std::endl
+				  		  << "Press any key." << std::endl;
+				_getch();
 				break;
 			}
 
