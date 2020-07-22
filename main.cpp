@@ -1,5 +1,4 @@
 #include <iostream>
-#include <termios.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -74,7 +73,7 @@ int main() {
 
 	while (true) {
 
-		clrscr();
+		term::clrscr();
 		std::cout   << "___________Menu___________" << std::endl
 					<< "1. Add new position" << std::endl
 					<< "2. Print position's list" << std::endl
@@ -82,50 +81,50 @@ int main() {
 					<< "4. Delete position by id" << std::endl
 					<< "5. Exit" << std::endl;
 
-		switch (_getch()) {
+		switch (term::getch()) {
 
 			case 49 : { //1
-				clrscr();
+				term::clrscr();
 				allPos.push_back(new Position); // delete on p.5
 				break;
 			}
 
 			case 50: {//2
 
-				clrscr();
+				term::clrscr();
 				if (auto posCount = allPos.size())
 					Position::print(allPos);
 				else
 					std::cout << "List is empty." << std::endl;
 
 				std::cout << "Press any key." << std::endl;
-				_getch();
+				term::getch();
 				break;
 			}
 
 			case 51: {//3
-				clrscr();
+				term::clrscr();
 				Position::displayByName(allPos);
 				
 				std::cout << std::endl
 				  		  << "Press any key." << std::endl;
-				_getch();
+				term::getch();
 				break;
 			}
 
 			case 52 : {//4
-				clrscr();
+				term::clrscr();
 
-				if (auto posCount = allPos.size()) {
+				if (allPos.size()) {
 
 					unsigned int _id;
 					std::cout << "Enter id of deleting element: " << std::endl;
 					std::cin >> _id;
 
-					auto newEnd = std::find_if(allPos.begin(), allPos.end(), [_id](auto pos) {
+					auto newEnd = std::remove_if(allPos.begin(), allPos.end(), [_id](auto pos) {
 
 						auto state = pos->getId() == _id;
-						system("cls");
+						term::clrscr();
 						std::cout << (state ? "Position has removed" : "Position not found.") << std::endl;
 
 						return state;
@@ -135,7 +134,7 @@ int main() {
 					std::cout << "List is empty." << std::endl;
 
 					std::cout << "Press any key." << std::endl;
-					_getch();
+					term::getch();
 
 				break;
 			}
@@ -146,7 +145,7 @@ int main() {
 			}
 
 			default: {
-				clrscr();
+				term::clrscr();
 				std::cout << "Invalid key.";
 				break;
 			}

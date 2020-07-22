@@ -3,32 +3,36 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-void clrscr(){
-    std::system ("clear");
-}
 
-static struct termios stored_settings;
+namespace term {
 
-char _getch(){
+    void clrscr(){
+        system ("clear");
+    }
 
-    struct termios new_settings;
+    struct termios stored_settings;
 
-    tcgetattr(0, &stored_settings);
-    new_settings = stored_settings;
+    char getch(){
 
-    /*Отключение канонического режима и вывода на экран
-        и установка буфера ввода размером в 1 байт*/
+        struct termios new_settings;
 
-    new_settings.c_lflag &= (~ICANON);
-    new_settings.c_lflag &= (~ECHO);
-    new_settings.c_cc[VTIME] = 0;
-    new_settings.c_cc[VMIN] = 1;
+        tcgetattr(0, &stored_settings);
+        new_settings = stored_settings;
 
-    tcsetattr(0,TCSANOW,&new_settings);
+        /*Отключение канонического режима и вывода на экран
+            и установка буфера ввода размером в 1 байт*/
 
-    char ch = getchar();
+        new_settings.c_lflag &= (~ICANON);
+        new_settings.c_lflag &= (~ECHO);
+        new_settings.c_cc[VTIME] = 0;
+        new_settings.c_cc[VMIN] = 1;
 
-    tcsetattr(0,TCSANOW,&stored_settings);
+        tcsetattr(0,TCSANOW,&new_settings);
 
-    return ch;
+        char ch = getchar();
+
+        tcsetattr(0,TCSANOW,&stored_settings);
+
+        return ch;
+    }
 }
