@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -6,6 +7,7 @@
 #include <algorithm>
 
 #include "termlib.h"
+#include "srlz.h"
 
 class Position {
 
@@ -23,6 +25,10 @@ public:
 		std::cin >> std::setw(NAME_LENGTH) >> name;
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		id = count++;
+	}
+
+	Position(std::string _name, const unsigned int _id){
+		name = _name; id = _id;
 	}
 
 	static void displayByName(std::vector<Position*> positions) {
@@ -70,6 +76,61 @@ unsigned int Position::count = 0;
 int main() {
 
 	std::vector<Position*> allPos;
+	std::ifstream in("data.dat", std::ios::in);
+
+	//Считываем данные из файла, если такие есть
+	if (in) {
+		auto posCount = 0U;
+		in.read(reinterpret_cast<char*>(&posCount), sizeof(posCount));
+		in.read(reinterpret_cast<char*>(&Position::count), sizeof(Position::count));
+
+		for (auto i = 0U; i < posCount; i++) {
+			std::string _name;
+			unsigned int _id;
+			srlz::read(in, _name);
+			in.read(reinterpret_cast<char*>(&_id), sizeof(_id));
+			
+			//Проверяем входящий id на уникальность
+			bool isDuplicate = std::count_if(allPos.begin(), allPos.end(), [_id](auto pos) {
+
+				auto state = pos->getId() == _id;
+				term::clrscr();
+
+				return state;
+			});
+			
+			if (isDuplicate) {
+				std::cout << "File 'data.dat' is corrupted" << std::endl
+						<< "1 - Clear list and continue"  	<< std::endl
+						<< "2 - Exit "						<< std::endl;
+
+				switch (term::getch()) {
+					case 49: {
+
+						in.close();
+						std::fstream of("data.dat", std::ios::trunc);
+						of.write("",0);
+						of.close();
+						allPos.clear();
+						break;
+					}
+
+					case 50: {
+						return 0;
+					}
+					
+					default: {
+						term::clrscr();
+						std::cout << "Invalid key.";
+						break;
+					}
+				}
+				break;	
+			}
+			allPos.push_back(new Position(_name, _id));
+		}
+	}
+	
 
 	while (true) {
 
@@ -140,6 +201,18 @@ int main() {
 			}
 
 			case 53: {//5
+			
+			//Записываем изменения в файл
+			std::ofstream out("data.dat", std::ios::binary);
+			auto posCount = allPos.size();
+			out.write(reinterpret_cast<char*>(&posCount), sizeof(posCount));
+			out.write(reinterpret_cast<char*>(&Position::count), sizeof(Position::count));
+			for (auto i = 0U; i < posCount; i++) {
+				auto id = allPos[i]->getId();
+				srlz::write(out, allPos[i]->getName());
+				out.write(reinterpret_cast<char*>(&id), sizeof(id));
+			}
+	
 				allPos.clear();
 				return 0;
 			}
