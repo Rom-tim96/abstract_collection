@@ -80,7 +80,8 @@ int main() {
 
 	//Считываем данные из файла, если такие есть
 	if (in) {
-		auto posCount = 0U;
+		
+		std::size_t posCount = 0;
 		in.read(reinterpret_cast<char*>(&posCount), sizeof(posCount));
 		in.read(reinterpret_cast<char*>(&Position::count), sizeof(Position::count));
 
@@ -204,13 +205,14 @@ int main() {
 			
 			//Записываем изменения в файл
 			std::ofstream out("data.dat", std::ios::binary);
-			auto posCount = allPos.size();
+			std::size_t posCount = allPos.size();
 			out.write(reinterpret_cast<char*>(&posCount), sizeof(posCount));
 			out.write(reinterpret_cast<char*>(&Position::count), sizeof(Position::count));
 			for (auto i = 0U; i < posCount; i++) {
-				auto id = allPos[i]->getId();
-				srlz::write(out, allPos[i]->getName());
-				out.write(reinterpret_cast<char*>(&id), sizeof(id));
+				auto _id = allPos[i]->getId();
+				auto _name = allPos[i]->getName();
+				srlz::write(out, _name);
+				out.write(reinterpret_cast<char*>(&_id), sizeof(_id));
 			}
 	
 				allPos.clear();

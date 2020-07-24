@@ -4,7 +4,7 @@
 namespace term {
 
     void clrscr();
-    char _getch();
+    char getch();
 
 }
 
